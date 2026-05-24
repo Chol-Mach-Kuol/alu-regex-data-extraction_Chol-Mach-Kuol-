@@ -1,0 +1,53 @@
+Customer support log. Exported: 2026-05-20
+
+Hello team,
+
+Please contact:
+john.doe@alueducation.com
+mary_kim@alumni.alueducation.com
+samuel@si.alueducation.com
+
+These should NOT pass validation:
+admin@@alueducation.com
+hacker<script>@alueducation.com
+fake@alueducation
+user@evil.com
+
+Client URLs:
+https://www.alueducation.com
+http://example.org/login?next=dashboard
+https://sub.domain.co.uk/path/index.html
+
+Broken URLs:
+javascript:alert('xss')
+http//broken-url.com
+
+Payment records:
+Visa: 4532 0151 1283 0366
+MasterCard: 5500-0000-0000-0004
+
+Invalid cards:
+1234 5678 9999 0000
+4111-1111-111
+
+Emergency contacts:
++250 788 123 456
+(202) 555-0188
++1-202-555-0199
+
+Invalid phone entries:
+abcd-123-999
+999999
+
+Server generated suspicious content:
+<script>alert('hacked')</script>
+DROP TABLE users;
+../../etc/passwd
+
+Meeting Times:
+09:45
+23:59
+7:30 PM
+13:75
+
+End of file.

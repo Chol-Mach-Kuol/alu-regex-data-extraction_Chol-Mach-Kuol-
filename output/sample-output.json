@@ -1,0 +1,42 @@
+{
+    "emails": [
+        "john.doe@alueducation.com",
+        "mary_kim@alumni.alueducation.com",
+        "samuel@si.alueducation.com",
+        "user@evil.com"
+    ],
+    "alu_official_emails": [
+        "john.doe@alueducation.com"
+    ],
+    "alu_alumni_emails": [
+        "mary_kim@alumni.alueducation.com"
+    ],
+    "alu_si_emails": [
+        "samuel@si.alueducation.com"
+    ],
+    "urls": [
+        "https://www.alueducation.com",
+        "http://example.org/login?next=dashboard",
+        "https://sub.domain.co.uk/path/index.html"
+    ],
+    "phone_numbers": [
+        "+250 788 123 456",
+        "(202) 555-0188",
+        "+1-202-555-0199"
+    ],
+    "credit_cards_masked": [
+        "**** **** **** 0366",
+        "**** **** **** 0004"
+    ],
+    "times": [
+        "09:45",
+        "23:59",
+        "7:30 PM"
+    ],
+    "security_alerts": [
+        "<script>alert('hacked')</script>",
+        "DROP TABLE",
+        "../../",
+        "javascript:"
+    ]
+}
