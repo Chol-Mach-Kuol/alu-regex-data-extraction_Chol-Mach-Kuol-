@@ -6,8 +6,7 @@ from pathlib import Path
 # READ INPUT FILE
 # =========================
 
-# Resolve paths relative to this script so the program runs correctly
-# regardless of which directory it is launched from.
+# I'm using Path(__file__) so the script works no matter where you run it from
 BASE_DIR = Path(__file__).resolve().parent.parent
 input_path = BASE_DIR / "input" / "raw-text.txt"
 
@@ -18,16 +17,15 @@ with open(input_path, "r", encoding="utf-8") as file:
 # SECURITY CHECKS
 # =========================
 
-# Scan the raw input for known hostile patterns BEFORE any extraction.
-# We do not trust external input automatically.
-# Matches are recorded in security_alerts and included in the output
-# so the caller knows what was detected.
+# I don't trust the input. Before extracting anything I scan for
+# patterns that look like attacks. If something matches, I record it
+# in security_alerts so we know what was found.
 
 malicious_patterns = [
-    r"<script.*?>.*?</script>",   # XSS: script tag injection
-    r"DROP\s+TABLE",              # SQL injection: destructive statement
-    r"\.\./\.\./",                # Path traversal: directory escape attempt
-    r"javascript:"                # XSS: javascript: URI scheme
+    r"<script.*?>.*?</script>",  # script tag injection
+    r"DROP\s+TABLE",             # SQL injection
+    r"\.\./\.\./",               # path traversal
+    r"javascript:"               # unsafe URL scheme
 ]
 
 security_alerts = []
@@ -40,33 +38,26 @@ for pattern in malicious_patterns:
 # REGEX PATTERNS
 # =========================
 
-# EMAILS
-# Matches a local part (alphanumeric, dots, underscores, percent, plus, hyphen)
-# followed by @ and a domain with at least one dot and a 2+ char TLD.
-# Rejects: double-@ (admin@@), missing TLD (fake@alueducation), bare domains.
+# EMAIL
+# matches the local part before @ then the domain and TLD
+# rejects things like admin@@ or fake@alueducation (no TLD)
 email_pattern = r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b"
 
-# ALU-SPECIFIC EMAIL VALIDATION
-# Three separate patterns for each official ALU domain.
-# Alumni and SI patterns are applied before the staff pattern to prevent
-# @alumni.alueducation.com from being partially matched as @alueducation.com.
+# ALU emails - three separate patterns for each domain
+# I check alumni and si before the official one because
+# @alumni.alueducation.com contains @alueducation.com inside it
 alu_official_pattern = r"\b[a-zA-Z0-9._%+-]+@alueducation\.com\b"
 alu_alumni_pattern   = r"\b[a-zA-Z0-9._%+-]+@alumni\.alueducation\.com\b"
 alu_si_pattern       = r"\b[a-zA-Z0-9._%+-]+@si\.alueducation\.com\b"
 
-# URLS
-# Matches http:// and https:// URLs including paths, query strings, and fragments.
-# Stops at the first whitespace character.
-# Rejects: javascript: scheme (caught by security check above),
-#          malformed entries like http//broken-url.com (missing colon after http).
+# URL
+# matches http and https URLs, stops at whitespace
+# javascript: and http//broken are not matched because they don't fit the pattern
 url_pattern = r"\bhttps?://[^\s]+"
 
-# PHONE NUMBERS
-# Supports two real-world formats:
-#   International: +<country code> followed by digit groups (spaces or hyphens).
-#   North American: (NXX) NXX-XXXX
-# NOTE: \b cannot anchor before + because + is not a word character.
-#       (?<![\d]) is used instead to prevent matching mid-number.
+# PHONE
+# two formats: international with + and North American with ()
+# I used (?<![\d]) instead of \b because \b doesn't work before +
 phone_pattern = r"""
 (?<![\d])(
     \+\d{1,3}[\s-]?\d{2,4}[\s-]?\d{3}[\s-]?\d{3,4}
@@ -75,21 +66,19 @@ phone_pattern = r"""
 )(?![\d])
 """
 
-# CREDIT CARD NUMBERS
-# Matches 16-digit card numbers in groups of 4, separated by a space or hyphen.
-# Partial numbers like 4111-1111-111 (only 15 digits) are excluded by \b.
+# CREDIT CARD
+# 16 digits in groups of 4 separated by space or dash
+# partial numbers like 4111-1111-111 don't match because \b requires exactly 4 digits at the end
 credit_card_pattern = r"""
 \b(
     (?:\d{4}[- ]?){3}\d{4}
 )\b
 """
 
-# TIME FORMATS
-# Supports both 12-hour and 24-hour formats.
-# 12-hour branch is listed FIRST so that "7:30 PM" is captured as a complete
-# 12-hour time rather than matching only "7:30" via the 24-hour branch.
-# Invalid minutes (e.g. 13:75) are rejected by the [0-5]\d minute constraint.
-# Invalid hours (e.g. 99:99 PM) are rejected by the (1-9|1[0-2]) hour constraint.
+# TIME
+# I put the 12-hour format first so "7:30 PM" gets matched as a full 12-hour time
+# if I put 24-hour first it would match "7:30" and ignore the PM
+# invalid minutes like :75 are blocked by [0-5]\d
 time_pattern = r"""
 \b(
     ([1-9]|1[0-2]):[0-5]\d[ ]?(AM|PM)
@@ -111,7 +100,7 @@ alu_si_emails       = re.findall(alu_si_pattern, raw_text)
 urls = re.findall(url_pattern, raw_text)
 
 phones = re.findall(phone_pattern, raw_text, re.VERBOSE)
-# re.findall with one capturing group returns a flat list of strings (not tuples)
+# findall with one group gives back strings not tuples so I just filter empty ones
 phones = [p for p in phones if p]
 
 credit_cards = re.findall(credit_card_pattern, raw_text, re.VERBOSE)
@@ -124,27 +113,23 @@ formatted_times = [t[0] for t in times]
 # MASK SENSITIVE DATA
 # =========================
 
-# Credit card numbers are masked before output.
-# Only the last 4 digits are shown; all others are replaced with *.
-# Raw card numbers are never written to the output file or printed to the console.
-# Security: cards where all 16 digits are identical (e.g. 0000 0000 0000 0000)
-# are rejected as trivially fake before masking.
-# Known sequential test numbers are also rejected.
+# I never store the full card number in the output
+# only the last 4 digits are kept, everything else becomes *
+# I also reject cards that are all the same digit like 0000 0000 0000 0000
+# and known fake test numbers like 1234 5678 9999 0000
 masked_cards = []
 
 KNOWN_INVALID_CARDS = {
-    "1234567890000000",  # sequential test pattern
-    "1234567899990000",  # sequential test pattern
+    "1234567899990000",
+    "1234567890000000",
 }
 
 for card in credit_cards:
     digits = re.sub(r"\D", "", card)
 
     if len(digits) == 16:
-        # Reject cards that are all the same digit — trivially invalid
         if len(set(digits)) == 1:
             continue
-        # Reject known test/sequential card numbers
         if digits in KNOWN_INVALID_CARDS:
             continue
         masked = "**** **** **** " + digits[-4:]
