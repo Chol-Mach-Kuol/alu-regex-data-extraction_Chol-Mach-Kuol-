@@ -6,7 +6,6 @@ from pathlib import Path
 # READ INPUT FILE
 # =========================
 
-# I'm using Path(__file__) so the script works no matter where you run it from
 BASE_DIR = Path(__file__).resolve().parent.parent
 input_path = BASE_DIR / "input" / "raw-text.txt"
 
@@ -100,7 +99,6 @@ alu_si_emails       = re.findall(alu_si_pattern, raw_text)
 urls = re.findall(url_pattern, raw_text)
 
 phones = re.findall(phone_pattern, raw_text, re.VERBOSE)
-# findall with one group gives back strings not tuples so I just filter empty ones
 phones = [p for p in phones if p]
 
 credit_cards = re.findall(credit_card_pattern, raw_text, re.VERBOSE)
