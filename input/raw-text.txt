@@ -2,52 +2,60 @@ Customer support log. Exported: 2026-05-20
 
 Hello team,
 
-Please contact:
-john.doe@alueducation.com
-mary_kim@alumni.alueducation.com
-samuel@si.alueducation.com
+Just forwarding the tickets from this week. Some of these came in through
+the API and a few were typed in manually so the formatting is all over the place.
 
-These should NOT pass validation:
-admin@@alueducation.com
-hacker<script>@alueducation.com
-fake@alueducation
-user@evil.com
+---
 
-Client URLs:
-https://www.alueducation.com
-http://example.org/login?next=dashboard
-https://sub.domain.co.uk/path/index.html
+Hi, my name is James and I work with john.doe@alueducation.com on the admissions team.
+We have a student mary_kim@alumni.alueducation.com who can't log into the portal.
+Her phone is +250 788 123 456 and she paid with card 4532 0151 1283 0366 last Tuesday.
+Can someone check https://www.alueducation.com/portal/login? She says it just hangs at 09:45.
 
-Broken URLs:
-javascript:alert('xss')
-http//broken-url.com
+---
 
-Payment records:
-Visa: 4532 0151 1283 0366
-MasterCard: 5500-0000-0000-0004
+From: samuel@si.alueducation.com
+Sent: Monday 7:30 PM
 
-Invalid cards:
-1234 5678 9999 0000
-4111-1111-111
+Hey, quick one - the student below tried to register but the system rejected the card.
+Card used: 5500-0000-0000-0004
+Phone on file: (202) 555-0188
+Backup number: +1-202-555-0199
+Please check http://example.org/login?next=dashboard for the error log.
+Meeting to discuss is at 23:59 tonight if anyone is free.
 
-Emergency contacts:
-+250 788 123 456
-(202) 555-0188
-+1-202-555-0199
+---
 
-Invalid phone entries:
+These came in from the web form and look suspicious. Do not process.
+
+admin@@alueducation.com tried to submit a reset request.
+Someone also sent: fake@alueducation and user@evil.com - both look like test entries.
+hacker<script>@alueducation.com was flagged by the filter automatically.
+
+The following card numbers were submitted and rejected:
+- 1234 5678 9999 0000 (flagged as test number)
+- 4111-1111-111 (incomplete, only 15 digits)
+- 0000 0000 0000 0000 (all zeros, obviously fake)
+
+Phone entries that didn't match any format:
 abcd-123-999
 999999
 
-Server generated suspicious content:
+---
+
+Server logs also caught the following injected content. Flagged for review:
+
 <script>alert('hacked')</script>
 DROP TABLE users;
 ../../etc/passwd
+javascript:alert('xss')
+http//broken-url.com
 
-Meeting Times:
-09:45
-23:59
-7:30 PM
-13:75
+---
 
-End of file.
+Other valid contacts from this week:
+
+Reach out to support via https://sub.domain.co.uk/path/index.html
+Meeting scheduled for 13:75 was rejected by the calendar system (invalid time).
+
+End of log.

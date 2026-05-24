@@ -17,21 +17,21 @@ with open(input_path, "r", encoding="utf-8") as file:
 # =========================
 
 # I don't trust the input. Before extracting anything I scan for
-# patterns that look like attacks. If something matches, I record it
-# in security_alerts so we know what was found.
+# patterns that look like attacks. I record the type of threat found
+# but not the raw content - no point storing attack payloads in the output.
 
 malicious_patterns = [
-    r"<script.*?>.*?</script>",  # script tag injection
-    r"DROP\s+TABLE",             # SQL injection
-    r"\.\./\.\./",               # path traversal
-    r"javascript:"               # unsafe URL scheme
+    (r"<script.*?>.*?</script>", "script injection detected"),
+    (r"DROP\s+TABLE",            "SQL injection detected"),
+    (r"\.\./\.\./",              "path traversal detected"),
+    (r"javascript:",             "unsafe URL scheme detected")
 ]
 
 security_alerts = []
 
-for pattern in malicious_patterns:
-    matches = re.findall(pattern, raw_text, re.IGNORECASE)
-    security_alerts.extend(matches)
+for pattern, label in malicious_patterns:
+    if re.search(pattern, raw_text, re.IGNORECASE):
+        security_alerts.append(label)
 
 # =========================
 # REGEX PATTERNS
@@ -90,11 +90,15 @@ time_pattern = r"""
 # EXTRACTION
 # =========================
 
-emails = re.findall(email_pattern, raw_text)
+all_emails = re.findall(email_pattern, raw_text)
 
 alu_official_emails = re.findall(alu_official_pattern, raw_text)
 alu_alumni_emails   = re.findall(alu_alumni_pattern, raw_text)
 alu_si_emails       = re.findall(alu_si_pattern, raw_text)
+
+# only keep emails that belong to a known ALU domain
+alu_all = set(alu_official_emails + alu_alumni_emails + alu_si_emails)
+emails = [e for e in all_emails if e in alu_all]
 
 urls = re.findall(url_pattern, raw_text)
 

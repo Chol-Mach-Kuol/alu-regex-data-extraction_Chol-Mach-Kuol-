@@ -2,8 +2,7 @@
     "emails": [
         "john.doe@alueducation.com",
         "mary_kim@alumni.alueducation.com",
-        "samuel@si.alueducation.com",
-        "user@evil.com"
+        "samuel@si.alueducation.com"
     ],
     "alu_official_emails": [
         "john.doe@alueducation.com"
@@ -15,7 +14,7 @@
         "samuel@si.alueducation.com"
     ],
     "urls": [
-        "https://www.alueducation.com",
+        "https://www.alueducation.com/portal/login?",
         "http://example.org/login?next=dashboard",
         "https://sub.domain.co.uk/path/index.html"
     ],
@@ -30,13 +29,13 @@
     ],
     "times": [
         "09:45",
-        "23:59",
-        "7:30 PM"
+        "7:30 PM",
+        "23:59"
     ],
     "security_alerts": [
-        "<script>alert('hacked')</script>",
-        "DROP TABLE",
-        "../../",
-        "javascript:"
+        "script injection detected",
+        "SQL injection detected",
+        "path traversal detected",
+        "unsafe URL scheme detected"
     ]
 }
